@@ -4,7 +4,7 @@
 var PoemGen = function( ){
   
     var _gram2 = {}  ;
-    var _gram1 = []  ;
+    var _gram1 = {}  ;
     var _dict = {} ;
     var _yun = {} ;
     var _length = 5  ;
@@ -57,16 +57,17 @@ var PoemGen = function( ){
 
     function select_words(){
         var result_list = [];
+        var gram1_keys = Object.keys(_gram1);
         for(var i =0 ; i< _vword_count; i++){
-            var idx = (Math.random()*(_gram1.length-1)).toFixed();
-            var temp_item = _gram1[idx];
-            result_list.push(temp_item[0]);
+            var idx = (Math.random()*(gram1_keys.length-1)).toFixed();
+            var temp_item = gram1_keys[idx];
+            result_list.push(temp_item);
         }
         return result_list;
     }
  
     function viterbi_sub_2( pre_ary, this_ary, backward){
-        var default_prob = 0.5;
+        var default_prob = 0.1;
         for(var tw in this_ary){
             var max_prob = 0
             var rand_pw =  null;                
@@ -74,7 +75,9 @@ var PoemGen = function( ){
             for(var pw in pre_ary){
                 //console.log('pw',pw);
                 var gram_str = (backward) ? tw+" "+pw : pw+" "+tw
-                var this_prob = (gram_str in _gram2) ? _gram2[gram_str] : default_prob;
+                var gram2_prob = (gram_str in _gram2) ? _gram2[gram_str] : default_prob;
+                var gram1_prob = ( pw in _gram1) ? _gram1[pw]: default_prob*10;
+                var this_prob = gram2_prob/ gram1_prob;
                 //var this_prob = default_prob;
                 var temp_prob_val = this_prob * pre_ary[pw]['prob'];
                 if( temp_prob_val >= max_prob){
